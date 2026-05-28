@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     style="width:0;height:0;visibility:hidden;">
+  <defs>
+    <linearGradient id="up-spotter-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#04a888"/>
+      <stop offset="100%" stop-color="#003a36"/>
+    </linearGradient>
+    <linearGradient id="up-sparkle" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff8a3d"/>
+      <stop offset="100%" stop-color="#ff6b00"/>
+    </linearGradient>
+  </defs>
+  <symbol id="rd-icon-spotter" viewBox="0 0 192 192">
+    <circle cx="96" cy="96" r="88" fill="url(#up-spotter-bg)"/>
+    <path d="M96 46 L150 96 L130 96 L130 146 L62 146 L62 96 L42 96 Z" fill="#ffffff"/>
+    <path d="M96 70 L130 100 L120 100 L120 134 L72 134 L72 100 L62 100 Z" fill="#003a36" opacity="0.18"/>
+    <path d="M150 18 l5 14 14 5-14 5-5 14-5-14-14-5 14-5 5-14Z" fill="url(#up-sparkle)"/>
+    <circle cx="168" cy="12" r="4" fill="#ff8a3d"/>
+  </symbol>
+</svg>
