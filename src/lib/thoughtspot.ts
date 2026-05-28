@@ -10,7 +10,7 @@ export const UPSTART_MODEL_ID = '7abe3ebf-a1bc-4440-9c35-9b0583f97285';
 // Spotter icon sprite — pinned to commit SHA so jsDelivr never serves a stale cached copy.
 // Bump this when public/upstart-spotter-icon.svg changes.
 export const UPSTART_SPOTTER_ICON_URL =
-  'https://cdn.jsdelivr.net/gh/mmarco-ts/qgenda-insights-portal@8a36e99b1668586ebfb5c10edb984092086d03dc/public/upstart-spotter-icon.svg';
+  'https://cdn.jsdelivr.net/gh/mmarco-ts/upstart-portal@f5f3762e28836c06054b44bb8471de4ce582bde7/public/upstart-spotter-icon.svg';
 
 // Whitelabel strings — replaces ThoughtSpot terminology with Upstart-internal language.
 export const UPSTART_WHITELABEL_STRINGS: Record<string, string> = {
