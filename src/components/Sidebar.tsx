@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, LayoutDashboard, Sparkles, FolderOpen, ChevronLeft } from 'lucide-react';
+import { Home, LayoutDashboard, Sparkles, FolderOpen, ChevronLeft, Search } from 'lucide-react';
 import { useCurrentUser } from '../lib/useCurrentUser';
 
 interface SidebarProps {
@@ -50,6 +50,10 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <span className="nav-item-icon"><LayoutDashboard size={20} /></span>
             <span className="nav-item-text">Lending Performance</span>
+          </NavLink>
+          <NavLink to="/search" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <span className="nav-item-icon"><Search size={20} /></span>
+            <span className="nav-item-text">Search</span>
           </NavLink>
           <NavLink to="/ai-analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <span className="nav-item-icon"><Sparkles size={20} /></span>

@@ -33,6 +33,8 @@ export interface View {
   canEdit: boolean;
   /** Whether this user can access Spotter from within the dashboard. */
   canAskSpotter: boolean;
+  /** Whether this user can drill down on a viz to break out by another dimension. */
+  canDrillDown: boolean;
   /**
    * Whether this user can see borrower-level PII columns/tabs
    * (Annual Income, Borrower Fees Collected, etc.).
@@ -90,6 +92,7 @@ export const VIEWS: View[] = [
     description: 'Full access — edit, save, ask AI, see PII',
     canEdit: true,
     canAskSpotter: true,
+    canDrillDown: true,
     canSeePII: true,
     prompts: [
       'Loans originated MTD vs prior month',
@@ -102,9 +105,10 @@ export const VIEWS: View[] = [
   {
     id: 'capital',
     name: 'Capital Markets',
-    description: 'Read + ask AI · PII visible · cannot edit',
+    description: 'Read + drill + ask AI · cannot edit',
     canEdit: false,
     canAskSpotter: true,
+    canDrillDown: true,
     canSeePII: true,
     prompts: [
       '90+ day delinquency rate by loan vintage',
@@ -117,9 +121,10 @@ export const VIEWS: View[] = [
   {
     id: 'ops',
     name: 'Operations',
-    description: 'View only · no edit, no AI, PII masked',
+    description: 'View only · no drill, no AI, PII masked',
     canEdit: false,
     canAskSpotter: false,
+    canDrillDown: false,
     canSeePII: false,
     prompts: [
       'Application to funded conversion rate by acquisition channel',
@@ -258,6 +263,10 @@ export function buildHiddenActions(view: View): Action[] {
 
   if (!view.canAskSpotter) {
     hidden.push(Action.AskAi, Action.SpotIQAnalyze);
+  }
+
+  if (!view.canDrillDown) {
+    hidden.push(Action.DrillDown);
   }
 
   return hidden;
