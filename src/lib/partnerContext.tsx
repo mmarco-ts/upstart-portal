@@ -35,16 +35,12 @@ export interface View {
   canAskSpotter: boolean;
   /** Whether this user can drill down on a viz to break out by another dimension. */
   canDrillDown: boolean;
-  /**
-   * Whether this user can see borrower-level PII columns/tabs
-   * (Annual Income, Borrower Fees Collected, etc.).
-   * When false, tabs listed in PII_TAB_IDS get hidden via `hiddenTabs`.
-   */
-  canSeePII: boolean;
   /** Persona-tuned starter questions surfaced in the Spotter side panel. */
   prompts: string[];
 }
 
+// Values below are real strings from the Upstart data — verified against
+// Current Creditor Name, Originating Lender Name, and Product Type distinct lists.
 export const PARTNERS: Partner[] = [
   {
     id: 'internal',
@@ -52,36 +48,35 @@ export const PARTNERS: Partner[] = [
     shortName: 'Internal',
     accent: '#06182c',
     creditorValues: [],
-    // No vintage cutoff — internal users see the full origination history
   },
   {
-    id: 'goldman',
-    name: 'Goldman Sachs Capital',
-    shortName: 'Goldman',
+    id: 'velocity',
+    name: 'Velocity Investments',
+    shortName: 'Velocity',
     accent: '#00617a',
-    creditorValues: ['Goldman Sachs'],
-    vintageStartISO: '2025-01-01',
-    vintageLabel: 'Vintage ≥ Jan 2025',
+    creditorValues: ['Velocity Investments'],
+    vintageStartISO: '2023-01-01',
+    vintageLabel: 'Vintage ≥ Jan 2023',
   },
   {
-    id: 'apollo',
-    name: 'Apollo Fund I',
-    shortName: 'Apollo',
+    id: 'crown',
+    name: 'Crown Asset Management',
+    shortName: 'Crown',
     accent: '#ff6b00',
-    creditorValues: ['Apollo'],
+    creditorValues: ['Crown Asset Management LLC'],
     productTypeValues: ['personal_loan', 'auto_refinance'],
-    vintageStartISO: '2025-06-01',
-    vintageLabel: 'Vintage ≥ Jun 2025',
+    vintageStartISO: '2024-06-01',
+    vintageLabel: 'Vintage ≥ Jun 2024',
   },
   {
-    id: 'marlette',
-    name: 'Marlette Funding',
-    shortName: 'Marlette',
+    id: 'crossriver',
+    name: 'Cross River Bank',
+    shortName: 'Cross River',
     accent: '#7c3aed',
     creditorValues: [],
-    originatingLenderValues: ['Marlette'],
-    vintageStartISO: '2024-09-01',
-    vintageLabel: 'Vintage ≥ Sep 2024',
+    originatingLenderValues: ['Cross River Bank'],
+    vintageStartISO: '2022-01-01',
+    vintageLabel: 'Vintage ≥ Jan 2022',
   },
 ];
 
@@ -89,11 +84,10 @@ export const VIEWS: View[] = [
   {
     id: 'exec',
     name: 'Executive',
-    description: 'Full access — edit, save, ask AI, see PII',
+    description: 'Full access — edit, drill, ask AI',
     canEdit: true,
     canAskSpotter: true,
     canDrillDown: true,
-    canSeePII: true,
     prompts: [
       'Loans originated MTD vs prior month',
       'Approval rate trend by application month over the last 12 months',
@@ -109,7 +103,6 @@ export const VIEWS: View[] = [
     canEdit: false,
     canAskSpotter: true,
     canDrillDown: true,
-    canSeePII: true,
     prompts: [
       '90+ day delinquency rate by loan vintage',
       'Average APR by risk grade for personal loans',
@@ -121,11 +114,10 @@ export const VIEWS: View[] = [
   {
     id: 'ops',
     name: 'Operations',
-    description: 'View only · no drill, no AI, PII masked',
+    description: 'View only — no edit, no drill, no AI',
     canEdit: false,
     canAskSpotter: false,
     canDrillDown: false,
-    canSeePII: false,
     prompts: [
       'Application to funded conversion rate by acquisition channel',
       'Average days application to funding by product type',
@@ -184,7 +176,7 @@ export function usePartner() {
   return ctx;
 }
 
-/** Build runtimeFilters for the active partner — RLS only, no date filter. */
+/** Build runtimeFilters for the active partner. */
 export function buildRuntimeFilters(ctx: PartnerCtx) {
   const filters: Array<{ columnName: string; operator: RuntimeFilterOp; values: (string | number)[] }> = [];
 
@@ -212,8 +204,7 @@ export function buildRuntimeFilters(ctx: PartnerCtx) {
     });
   }
 
-  // Vintage cutoff — per-partner funding-start date. Filter is partner-driven,
-  // NOT view/persona-driven, so it stays stable when "View as" changes.
+  // Vintage cutoff — per-partner funding-start date.
   if (ctx.partner.vintageStartISO) {
     const startSec = Math.floor(new Date(ctx.partner.vintageStartISO).getTime() / 1000);
     if (!Number.isNaN(startSec)) {
@@ -229,24 +220,8 @@ export function buildRuntimeFilters(ctx: PartnerCtx) {
 }
 
 /**
- * Tab IDs to hide for views that don't have PII access. Populate with the
- * IDs of tabs in the Lending Performance liveboard that contain borrower-level
- * columns (Annual Income, Borrower Fees Collected, Charged Off Amount, etc.).
- * Find a tab ID by opening the liveboard and copying it from the URL:
- *   /pinboard/<liveboardId>/tab/<TAB_ID_HERE>
- */
-export const PII_TAB_IDS: string[] = [
-  // 'TODO-borrower-detail-tab-id',
-];
-
-/** Returns the list of tab IDs to hide based on the active view's PII permissions. */
-export function buildHiddenTabs(view: View): string[] {
-  return view.canSeePII ? [] : PII_TAB_IDS;
-}
-
-/**
  * Map a View's permissions to a list of Liveboard/Spotter actions to hide.
- * Actions hidden disappear from the UI entirely (not just disabled).
+ * Hidden actions disappear from the UI entirely.
  */
 export function buildHiddenActions(view: View): Action[] {
   const hidden: Action[] = [];

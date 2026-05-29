@@ -8,7 +8,7 @@ import {
   HIDE_TS_BRANDING_RULES,
   UPSTART_CSS_VARIABLES,
 } from '../lib/thoughtspot';
-import { usePartner, buildRuntimeFilters, buildHiddenActions, buildHiddenTabs } from '../lib/partnerContext';
+import { usePartner, buildRuntimeFilters, buildHiddenActions } from '../lib/partnerContext';
 import '../lib/thoughtspot';
 
 export default function Dashboard() {
@@ -31,7 +31,6 @@ export default function Dashboard() {
 
     const runtimeFilters = buildRuntimeFilters(ctx);
     const hiddenActions = buildHiddenActions(ctx.view);
-    const hiddenTabs = buildHiddenTabs(ctx.view);
 
     const embed = new LiveboardEmbed(embedRef.current, {
       frameParams: { width: '100%', height: '100%' },
@@ -43,7 +42,6 @@ export default function Dashboard() {
       isLiveboardStylingAndGroupingEnabled: true,
       runtimeFilters,
       hiddenActions,
-      ...(hiddenTabs.length > 0 ? { hiddenTabs } : {}),
       customizations: {
         style: {
           customCSS: {
