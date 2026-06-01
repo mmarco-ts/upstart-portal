@@ -6,3 +6,4 @@ dist
 .vite
 *.log
 .vercel
+TALK_TRACK.md

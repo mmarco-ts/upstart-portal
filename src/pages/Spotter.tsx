@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { SpotterEmbed, HostEvent, EmbedEvent } from '@thoughtspot/visual-embed-sdk';
+import { SpotterEmbed } from '@thoughtspot/visual-embed-sdk';
 import { MessageSquare, Lightbulb, Send, Check } from 'lucide-react';
 import Header from '../components/Header';
 import {
@@ -19,18 +19,19 @@ const TIPS = [
 export default function Spotter() {
   const embedRef = useRef<HTMLDivElement>(null);
   const embedInstanceRef = useRef<SpotterEmbed | null>(null);
-  const embedReadyRef = useRef(false);
-  const pendingQueryRef = useRef<string | null>(null);
   const [sentIdx, setSentIdx] = useState<number | null>(null);
+  const [seedQuery, setSeedQuery] = useState<string | undefined>(undefined);
   const [mountKey, setMountKey] = useState(0);
   const ctx = usePartner();
   const starterPrompts = ctx.view.prompts;
 
+  // Remount the embed whenever tenant, view, or seed prompt change.
+  // Remount-on-click is less elegant than HostEvent.SpotterSearch but
+  // deterministic across SDK versions — the query lands every time.
   useEffect(() => {
     embedInstanceRef.current = null;
-    embedReadyRef.current = false;
     setMountKey(k => k + 1);
-  }, [ctx.partner.id, ctx.view.id]);
+  }, [ctx.partner.id, ctx.view.id, seedQuery]);
 
   useEffect(() => {
     if (!embedRef.current || embedInstanceRef.current) return;
@@ -44,6 +45,7 @@ export default function Spotter() {
       updatedSpotterChatPrompt: true,
       runtimeFilters,
       hiddenActions,
+      ...(seedQuery ? { searchOptions: { searchQuery: seedQuery } } : {}),
       customizations: {
         style: {
           customCSS: {
@@ -54,38 +56,20 @@ export default function Spotter() {
       },
     });
 
-    const markReady = () => {
-      embedReadyRef.current = true;
-      const pending = pendingQueryRef.current;
-      if (pending) {
-        pendingQueryRef.current = null;
-        embed.trigger(HostEvent.SpotterSearch, { query: pending, executeSearch: true });
-      }
-    };
-    embed.on(EmbedEvent.SpotterLoadComplete, markReady);
-    embed.on(EmbedEvent.APP_INIT, markReady);
-
     embedInstanceRef.current = embed;
     embed.render();
 
     return () => {
       embedInstanceRef.current = null;
-      embedReadyRef.current = false;
     };
-  }, [mountKey, ctx]);
+  }, [mountKey, ctx, seedQuery]);
 
   const handlePromptClick = (prompt: string, idx: number) => {
     setSentIdx(idx);
     setTimeout(() => setSentIdx(null), 1600);
-
-    if (embedInstanceRef.current && embedReadyRef.current) {
-      embedInstanceRef.current.trigger(HostEvent.SpotterSearch, {
-        query: prompt,
-        executeSearch: true,
-      });
-    } else {
-      pendingQueryRef.current = prompt;
-    }
+    // Append a no-op suffix when the same prompt is clicked twice so the
+    // seedQuery state changes and the effect re-fires.
+    setSeedQuery(prompt === seedQuery ? `${prompt} ` : prompt);
   };
 
   return (
