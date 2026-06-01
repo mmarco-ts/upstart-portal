@@ -10,12 +10,20 @@ import {
 import { usePartner, buildRuntimeFilters, buildHiddenActions } from '../lib/partnerContext';
 import '../lib/thoughtspot';
 
-const STARTER_TOKEN_QUERIES = [
-  'loan count by origination month',
-  'approval rate by state',
-  'average apr by risk grade product type',
-  'loan purpose category by quarter',
-  'application count by acquisition channel',
+// Each entry pairs a human-readable label with the actual TS token string.
+// Tokens must match column names in the model exactly and be wrapped in [brackets].
+// Date columns can append .monthly / .quarterly / .yearly for bucketing.
+interface StarterQuery {
+  label: string;
+  tokens: string;
+}
+
+const STARTER_TOKEN_QUERIES: StarterQuery[] = [
+  { label: 'Loan count by origination month',     tokens: '[Loan Count] [Origination Date].monthly' },
+  { label: 'Approval rate by state',              tokens: '[Approval Rate] [State]' },
+  { label: 'Average APR by risk grade & product', tokens: '[Average APR] [Risk Grade] [Product Type]' },
+  { label: 'Loan purpose by quarter',             tokens: '[Loan Purpose Category] [Origination Date].quarterly' },
+  { label: 'Application count by channel',        tokens: '[Application Count] [Acquisition Channel]' },
 ];
 
 const TIPS = [
@@ -101,12 +109,12 @@ export default function Search() {
                 <div className="spotter-prompt-list">
                   {STARTER_TOKEN_QUERIES.map(q => (
                     <button
-                      key={q}
+                      key={q.label}
                       className="spotter-prompt-card"
-                      onClick={() => setSeedQuery(q)}
-                      title="Seed the search bar with this query"
+                      onClick={() => setSeedQuery(q.tokens)}
+                      title={q.tokens}
                     >
-                      <span className="spotter-prompt-text">{q}</span>
+                      <span className="spotter-prompt-text">{q.label}</span>
                     </button>
                   ))}
                 </div>
